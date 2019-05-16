@@ -1,12 +1,18 @@
+data "aws_eks_cluster" "eks" {
+  name = "${var.cluster_name}"
+}
+
+
 provider "helm" {
-  # kubernetes {
-  #   config_path = "$HOME/.kube/config-eks.yaml"
-  # }
+  kubernetes {
+    config_context = "${data.aws_eks_cluster.eks.arn}"
+  }
+  install_tiller = "${var.install_tiller}"
+  service_account = "${var.tiller_service_account}"
 }
 
 provider "kubernetes" {
-  # load_config_file       = "$HOME/.kube/config-eks.yaml"
-  # config_context_cluster = "aws"
+  config_context_cluster = "${data.aws_eks_cluster.eks.arn}"
 }
 
 # region and kube2iam required for most add-ons

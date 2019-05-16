@@ -17,6 +17,10 @@ resource "helm_release" "alb-ingress" {
   chart      = "aws-alb-ingress-controller"
   namespace  = "ingress-controller"
 
+  values = [
+    "${file("${path.module}/config/alb-ingress.yaml")}",
+  ]
+
   set {
     name  = "clusterName"
     value = "${var.cluster_name}"
@@ -25,16 +29,6 @@ resource "helm_release" "alb-ingress" {
   set {
     name = "podAnnotations.iam\\.amazonaws\\.com/role"
     value = "${var.cluster_name}-alb"
-  }
-
-  set {
-    name = "autoDiscoverAwsRegion"
-    value = "true"
-  }
-
-  set {
-    name = "autoDiscoverAwsVpcID"
-    value = "true"
   }
 
   # Uses kube2iam for credentials
