@@ -17,7 +17,7 @@ services = ["ows"]
 topic_arn = "arn:aws:sns:ap-southeast-2:538673716275:DEANewData"
 
 # Cloudfront CDN
-cloudfront_enabled = true
+cloudfront_enabled = false
 
 cached_app_domain = "services"
 
