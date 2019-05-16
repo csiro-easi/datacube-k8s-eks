@@ -1,10 +1,6 @@
 # ======================================
 # Autoscaler
 
-variable "cluster_autoscaler_enabled" {
-  default = false
-}
-
 resource "kubernetes_namespace" "cluster-autoscaler" {
   metadata {
     name = "cluster-autoscaler"

@@ -1,7 +1,3 @@
-variable "cloudwatch_logs_enabled" {
-  default = false
-}
-
 variable "cw_log_group" {
   default = "datacube"
 }
