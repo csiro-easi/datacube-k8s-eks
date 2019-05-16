@@ -2,7 +2,6 @@ data "aws_eks_cluster" "eks" {
   name = "${var.cluster_name}"
 }
 
-
 provider "helm" {
   kubernetes {
     config_context = "${data.aws_eks_cluster.eks.arn}"
@@ -16,7 +15,6 @@ provider "kubernetes" {
 }
 
 # region and kube2iam required for most add-ons
-
 data "aws_region" "current" {}
 
 resource "helm_release" "kube2iam" {

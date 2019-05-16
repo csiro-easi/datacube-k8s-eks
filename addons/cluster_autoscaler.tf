@@ -2,6 +2,7 @@
 # Autoscaler
 
 resource "kubernetes_namespace" "cluster-autoscaler" {
+  count = "${var.cluster_autoscaler_enabled ? 1 : 0}"
   metadata {
     name = "cluster-autoscaler"
 
@@ -12,6 +13,7 @@ resource "kubernetes_namespace" "cluster-autoscaler" {
 }
 
 resource "helm_release" "cluster_autoscaler" {
+  count      = "${var.cluster_autoscaler_enabled ? 1 : 0}"
   name       = "cluster-autoscaler"
   repository = "${data.helm_repository.stable.metadata.0.name}"
   chart      = "cluster-autoscaler"
@@ -43,7 +45,7 @@ resource "helm_release" "cluster_autoscaler" {
 
 
 resource "aws_iam_role" "autoscaler" {
-  count = "${var.cluster_autoscaler_enabled}"
+  count = "${var.cluster_autoscaler_enabled ? 1 : 0}"
   name  = "${var.cluster_name}-autoscaler"
 
   assume_role_policy = <<EOF
@@ -72,7 +74,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "autoscaler" {
-  count = "${var.cluster_autoscaler_enabled}"
+  count = "${var.cluster_autoscaler_enabled ? 1 : 0}"
   name  = "${var.cluster_name}-autoscaler"
   role  = "${aws_iam_role.autoscaler.id}"
 

@@ -2,6 +2,7 @@
 # ALB Ingress controller
 
 resource "kubernetes_namespace" "ingress-controller" {
+  count = "${var.alb_ingress_enabled ? 1 : 0}"
   metadata {
     name = "ingress-controller"
 
@@ -12,6 +13,7 @@ resource "kubernetes_namespace" "ingress-controller" {
 }
 
 resource "helm_release" "alb-ingress" {
+  count      = "${var.alb_ingress_enabled ? 1 : 0}"
   name       = "alb-ingress"
   repository = "${data.helm_repository.incubator.metadata.0.name}"
   chart      = "aws-alb-ingress-controller"
@@ -36,7 +38,7 @@ resource "helm_release" "alb-ingress" {
 }
 
 resource "aws_iam_role" "alb" {
-  count = "${var.alb_ingress_enabled}"
+  count = "${var.alb_ingress_enabled ? 1 : 0}"
   name  = "${var.cluster_name}-alb"
 
   assume_role_policy = <<EOF
@@ -65,7 +67,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "alb" {
-  count = "${var.alb_ingress_enabled}"
+  count = "${var.alb_ingress_enabled ? 1 : 0}"
   name  = "${var.cluster_name}-alb"
   role  = "${aws_iam_role.alb.id}"
 

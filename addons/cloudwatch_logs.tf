@@ -1,12 +1,5 @@
-variable "cw_log_group" {
-  default = "datacube"
-}
-
-variable "cw_log_retention" {
-  default = 90
-}
-
 resource "kubernetes_namespace" "fluentd" {
+  count = "${var.cloudwatch_logs_enabled ? 1 : 0}"
   metadata {
     name = "fluentd"
 
@@ -17,9 +10,9 @@ resource "kubernetes_namespace" "fluentd" {
 }
 
 resource "aws_cloudwatch_log_group" "datakube" {
-  count             = "${var.cloudwatch_logs_enabled}"
-  name              = "${var.cluster_name}-${var.cw_log_group}"
-  retention_in_days = "${var.cw_log_retention}"
+  count             = "${var.cloudwatch_logs_enabled ? 1 : 0}"
+  name              = "${var.cluster_name}-${var.cloudwatch_log_group}"
+  retention_in_days = "${var.cloudwatch_log_retention}"
 
   tags {
     cluster = "${var.cluster_name}"
@@ -32,6 +25,7 @@ resource "aws_cloudwatch_log_group" "datakube" {
 
 
 resource "helm_release" "fluentd-cloudwatch" {
+  count      = "${var.cloudwatch_logs_enabled ? 1 : 0}"
   name       = "fluentd-cloudwatch"
   repository = "${data.helm_repository.incubator.metadata.0.name}"
   chart      = "fluentd-cloudwatch"
@@ -61,7 +55,7 @@ resource "helm_release" "fluentd-cloudwatch" {
 }
 
 resource "aws_iam_role" "fluentd" {
-  count = "${var.cloudwatch_logs_enabled}"
+  count = "${var.cloudwatch_logs_enabled ? 1 : 0}"
   name  = "${var.cluster_name}-fluentd"
 
   assume_role_policy = <<EOF
