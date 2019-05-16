@@ -46,3 +46,11 @@ kubectl apply -f db-creds.yaml
 kubectl apply -f tiller.yaml
 
 popd
+
+pushd addons
+rm -rf .terraform
+terraform init -backend-config ../workspaces/$WORKSPACE/backend.cfg 
+terraform workspace new "$WORKSPACE-addons" || terraform workspace select "$WORKSPACE-addons"
+terraform plan -input=false -var-file="../workspaces/$WORKSPACE/terraform.tfvars" 
+terraform apply -auto-approve -input=false -var-file="../workspaces/$WORKSPACE/terraform.tfvars" 
+popd
