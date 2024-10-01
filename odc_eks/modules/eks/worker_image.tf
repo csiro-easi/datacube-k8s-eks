@@ -92,11 +92,11 @@ resource "aws_launch_template" "spot" {
   instance_type = var.default_worker_instance_type
 
   metadata_options {
-    http_endpoint               = var.metadata_options.http_endpoint
-    http_tokens                 = var.metadata_options.http_tokens
-    http_put_response_hop_limit = var.metadata_options.http_put_response_hop_limit
-    http_protocol_ipv6          = var.metadata_options.http_protocol_ipv6
-    instance_metadata_tags      = var.metadata_options.instance_metadata_tags
+    http_endpoint               = lookup(var.metadata_options, "http_endpoint", null)
+    http_tokens                 = lookup(var.metadata_options, "http_tokens", null)
+    http_put_response_hop_limit = lookup(var.metadata_options, "http_put_response_hop_limit", null)
+    http_protocol_ipv6          = lookup(var.metadata_options, "http_protocol_ipv6", null)
+    instance_metadata_tags      = lookup(var.metadata_options, "instance_metadata_tags", null)
   }
 
   iam_instance_profile {
