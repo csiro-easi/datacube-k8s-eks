@@ -13,19 +13,32 @@ module "odc_eks_label" {
 
 locals {
   cluster_id = (var.cluster_id != "") ? var.cluster_id : module.odc_eks_label.id
+
+  tags = merge(
+    {
+      Name        = "${local.cluster_id}-vpc"
+      owner       = var.owner
+      namespace   = var.namespace
+      environment = var.environment
+    },
+    var.tags
+  )
+
 }
 
 module "vpc" {
-  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=v2.70.0"
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git?ref=v5.5.2"
+  count  = var.create_vpc ? 1 : 0
 
-  count = var.create_vpc ? 1 : 0
-
-  name             = "${local.cluster_id}-vpc"
-  cidr             = var.vpc_cidr
-  azs              = data.aws_availability_zones.available.names
-  public_subnets   = var.public_subnet_cidrs
-  private_subnets  = var.private_subnet_cidrs
-  database_subnets = var.database_subnet_cidrs
+  name                  = "${local.cluster_id}-vpc"
+  cidr                  = var.vpc_cidr
+  azs                   = data.aws_availability_zones.available.names
+  public_subnets        = var.public_subnet_cidrs
+  private_subnets       = var.private_subnet_cidrs
+  database_subnets      = var.database_subnet_cidrs
+  public_subnet_names   = (length(var.public_subnet_names) == length(var.public_subnet_cidrs)) ? var.public_subnet_names : null
+  private_subnet_names  = (length(var.private_subnet_names) == length(var.private_subnet_cidrs)) ? var.private_subnet_names : null
+  database_subnet_names = (length(var.database_subnet_names) == length(var.database_subnet_cidrs)) ? var.database_subnet_names : null
 
   secondary_cidr_blocks   = var.secondary_cidr_blocks
   map_public_ip_on_launch = var.map_public_ip_on_launch
@@ -51,19 +64,57 @@ module "vpc" {
   enable_dns_support   = true
 
   enable_nat_gateway           = var.enable_nat_gateway
+  single_nat_gateway           = var.single_nat_gateway
   create_igw                   = var.create_igw
   create_database_subnet_group = true
-  enable_s3_endpoint           = var.enable_s3_endpoint
 
-  tags = merge(
+  manage_default_security_group = false
+  manage_default_network_acl    = false
+  manage_default_route_table    = false
+
+  enable_flow_log                   = var.create_flow_log
+  flow_log_destination_type         = "s3"
+  flow_log_max_aggregation_interval = (var.create_flow_log) ? var.flow_log_max_aggregation_interval : null
+  flow_log_traffic_type             = (var.create_flow_log) ? var.flow_log_traffic_type : null
+  flow_log_file_format              = (var.create_flow_log) ? var.flow_log_file_format : null
+  flow_log_destination_arn          = (var.create_flow_log) ? (var.create_flow_log_s3_bucket ? "${module.s3_bucket[0].s3_bucket_arn}/${var.flow_log_s3_bucket_prefix}" : "arn:aws:s3:::${var.flow_log_s3_bucket_name}/${var.flow_log_s3_bucket_prefix}") : null
+
+  vpc_flow_log_tags = merge(
     {
-      Name        = "${local.cluster_id}-vpc"
+      Name        = "${local.cluster_id}-vpc-flow-logs"
       owner       = var.owner
       namespace   = var.namespace
       environment = var.environment
     },
     var.tags
   )
+}
+
+moved {
+  from = module.vpc[0].aws_vpc_endpoint.s3[0]
+  to   = module.vpc_endpoints[0].aws_vpc_endpoint.this["s3"]
+}
+
+module "vpc_endpoints" {
+  source = "git::https://github.com/terraform-aws-modules/terraform-aws-vpc.git//modules/vpc-endpoints?ref=v5.1.1"
+  count  = var.create_vpc && var.enable_s3_endpoint ? 1 : 0
+
+  vpc_id             = module.vpc[0].vpc_id
+  security_group_ids = [module.vpc[0].default_security_group_id]
+
+  endpoints = {
+    s3 = {
+      service      = "s3"
+      service_type = "Gateway"
+
+      route_table_ids = flatten([
+        module.vpc[0].private_route_table_ids,
+        module.vpc[0].public_route_table_ids
+      ])
+    }
+  }
+
+  tags = local.tags
 }
 
 # Creates network and Kuberenetes master nodes
