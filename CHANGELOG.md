@@ -1,6 +1,7 @@
 # master
 
-* The update to the version of Terraform AWS VPC module will require removing some resources from terraform state before applying.
+> [!IMPORTANT] 
+> The update to the version of Terraform AWS VPC module will require removing some resources from terraform state before applying.
 
 If you are running terraform 1.7+, add the following `removed` blocks to your deployment terraform:
 
