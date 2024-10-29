@@ -126,6 +126,12 @@ variable "public_subnet_cidrs" {
   default     = []
 }
 
+variable "public_subnet_names" {
+  type        = list(string)
+  description = "list of public subnet names to use"
+  default     = []
+}
+
 variable "map_public_ip_on_launch" {
   description = "Should be false if you do not want to auto-assign public IP on launch"
   type        = bool
@@ -138,9 +144,21 @@ variable "private_subnet_cidrs" {
   default     = []
 }
 
+variable "private_subnet_names" {
+  type        = list(string)
+  description = "list of private subnet names to use"
+  default     = []
+}
+
 variable "database_subnet_cidrs" {
   description = "List of database cidrs, for all available availability zones. Example: 10.0.0.0/24 and 10.0.1.0/24"
   type        = list(string)
+  default     = []
+}
+
+variable "database_subnet_names" {
+  type        = list(string)
+  description = "list of database subnet names to use"
   default     = []
 }
 
@@ -168,11 +186,58 @@ variable "enable_nat_gateway" {
   default     = true
 }
 
+variable "single_nat_gateway" {
+  description = "Should be true if you want to provision a single shared NAT Gateway across all of your private networks"
+  type        = bool
+  default     = false
+}
 
 variable "create_igw" {
   type        = bool
   description = "Whether to provision an Internet Gateway in the VPC. Default is true (False for private routing)"
   default     = true
+}
+
+variable "create_flow_log" {
+  type        = bool
+  description = "Whether to create VPC flow logs. Default is set to 'false'"
+  default     = false
+}
+
+variable "flow_log_max_aggregation_interval" {
+  description = "The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record. Valid Values: `60` seconds or `600` seconds"
+  type        = number
+  default     = 600
+}
+
+variable "flow_log_traffic_type" {
+  description = "The type of traffic to capture. Valid values: ACCEPT, REJECT, ALL"
+  type        = string
+  default     = "ALL"
+}
+
+variable "flow_log_file_format" {
+  description = "(Optional) The format for the flow log. Valid values: `plain-text`, `parquet`"
+  type        = string
+  default     = "plain-text"
+}
+
+variable "create_flow_log_s3_bucket" {
+  type        = bool
+  description = "Whether to create a S3 bucket for the vpc flow logs. Default is set to 'false'"
+  default     = false
+}
+
+variable "flow_log_s3_bucket_name" {
+  description = "The name of the bucket used to store the logs"
+  type        = string
+  default     = ""
+}
+
+variable "flow_log_s3_bucket_prefix" {
+  description = "The name of the prefix used to store the logs on S3"
+  type        = string
+  default     = ""
 }
 
 
@@ -333,7 +398,7 @@ variable "addon_vpccni_resolve_create" {
   description = "How to resolve conflicts on add-on creation (NONE, OVERWRITE)"
   type        = string
   default     = "OVERWRITE"
-  
+
   validation {
     condition     = contains(["NONE", "OVERWRITE"], var.addon_vpccni_resolve_create)
     error_message = "The addon_vpccni_resolve_create value must be one of ('NONE', 'OVERWRITE')"
@@ -344,7 +409,7 @@ variable "addon_vpccni_resolve_update" {
   description = "How to resolve conflicts on add-on update (NONE, OVERWRITE, PRESERVE)"
   type        = string
   default     = "OVERWRITE"
-  
+
   validation {
     condition     = contains(["NONE", "OVERWRITE", "PRESERVE"], var.addon_vpccni_resolve_update)
     error_message = "The addon_vpccni_resolve_update value must be one of ('NONE', 'OVERWRITE', 'PRESERVE')"
@@ -377,7 +442,7 @@ variable "addon_kubeproxy_resolve_create" {
   description = "How to resolve conflicts on add-on creation (NONE, OVERWRITE)"
   type        = string
   default     = "OVERWRITE"
-  
+
   validation {
     condition     = contains(["NONE", "OVERWRITE"], var.addon_kubeproxy_resolve_create)
     error_message = "The addon_kubeproxy_resolve_create value must be one of ('NONE', 'OVERWRITE')"
@@ -388,7 +453,7 @@ variable "addon_kubeproxy_resolve_update" {
   description = "How to resolve conflicts on add-on update (NONE, OVERWRITE, PRESERVE)"
   type        = string
   default     = "OVERWRITE"
-  
+
   validation {
     condition     = contains(["NONE", "OVERWRITE", "PRESERVE"], var.addon_kubeproxy_resolve_update)
     error_message = "The addon_kubeproxy_resolve_update value must be one of ('NONE', 'OVERWRITE', 'PRESERVE')"
@@ -417,7 +482,7 @@ variable "addon_coredns_resolve_create" {
   description = "How to resolve conflicts on add-on creation (NONE, OVERWRITE)"
   type        = string
   default     = "OVERWRITE"
-  
+
   validation {
     condition     = contains(["NONE", "OVERWRITE"], var.addon_coredns_resolve_create)
     error_message = "The addon_coredns_resolve_create value must be one of ('NONE', 'OVERWRITE')"
@@ -428,7 +493,7 @@ variable "addon_coredns_resolve_update" {
   description = "How to resolve conflicts on add-on update (NONE, OVERWRITE, PRESERVE)"
   type        = string
   default     = "OVERWRITE"
-  
+
   validation {
     condition     = contains(["NONE", "OVERWRITE", "PRESERVE"], var.addon_coredns_resolve_update)
     error_message = "The addon_coredns_resolve_update value must be one of ('NONE', 'OVERWRITE', 'PRESERVE')"
