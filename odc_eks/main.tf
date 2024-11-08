@@ -16,7 +16,8 @@ locals {
 
   tags = merge(
     {
-      Name        = "${local.cluster_id}-vpc"
+      # Let the module set the 'Name' tag, unless overidden by `var.tags`.
+      # Name        = "${local.cluster_id}-vpc"
       owner       = var.owner
       namespace   = var.namespace
       environment = var.environment
