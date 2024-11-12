@@ -6,8 +6,8 @@ resource "aws_eks_addon" "vpc_cni" {
     addon_version = var.addon_vpccni_version
     configuration_values = var.addon_vpccni_config == null ? null : jsonencode(var.addon_vpccni_config)
 
-    resolve_conflicts_create = var.addon_vpccni_resolve_create    
-    resolve_conflicts_update = var.addon_vpccni_resolve_update    
+    resolve_conflicts_on_create = var.addon_vpccni_resolve_create    
+    resolve_conflicts_on_update = var.addon_vpccni_resolve_update    
 }
 
 resource "aws_eks_addon" "kube-proxy" {
@@ -18,8 +18,8 @@ resource "aws_eks_addon" "kube-proxy" {
     addon_version = var.addon_kubeproxy_version
     configuration_values = var.addon_kubeproxy_config == null ? null : jsonencode(var.addon_kubeproxy_config)
 
-    resolve_conflicts_create = var.addon_kubeproxy_resolve_create    
-    resolve_conflicts_update = var.addon_kubeproxy_resolve_update
+    resolve_conflicts_on_create = var.addon_kubeproxy_resolve_create    
+    resolve_conflicts_on_update = var.addon_kubeproxy_resolve_update
 }
 
 resource "aws_eks_addon" "coredns" {
@@ -30,6 +30,6 @@ resource "aws_eks_addon" "coredns" {
     addon_version = var.addon_coredns_version
     configuration_values = var.addon_coredns_config == null ? null : jsonencode(var.addon_coredns_config)
 
-    resolve_conflicts_create = var.addon_coredns_resolve_create
-    resolve_conflicts_update = var.addon_coredns_resolve_update
+    resolve_conflicts_on_create = var.addon_coredns_resolve_create
+    resolve_conflicts_on_update = var.addon_coredns_resolve_update
 }
