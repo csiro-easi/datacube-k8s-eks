@@ -28,7 +28,7 @@ variable "cluster_id" {
 variable "cluster_version" {
   description = "EKS Cluster version to use"
   type        = string
-  default     = "1.28"
+  default     = "1.29"
 }
 
 variable "admin_access_CIDRs" {
@@ -391,7 +391,7 @@ variable "addon_vpccni_enable" {
 variable "addon_vpccni_version" {
   description = "Version of the vpc-cni add-on to use, defaults to latest."
   type        = string
-  default     = "v1.18.2-eksbuild.1"
+  default     = "v1.18.6-eksbuild.1"
 }
 
 variable "addon_vpccni_resolve_create" {
@@ -435,7 +435,7 @@ variable "addon_kubeproxy_enable" {
 variable "addon_kubeproxy_version" {
   description = "Version of the kube-proxy add-on to use, defaults to latest."
   type        = string
-  default     = "v1.28.8-eksbuild.5"
+  default     = "v1.29.9-eksbuild.1"
 }
 
 variable "addon_kubeproxy_resolve_create" {
@@ -475,7 +475,7 @@ variable "addon_coredns_enable" {
 variable "addon_coredns_version" {
   description = "Version of the coredns add-on to use, defaults to latest."
   type        = string
-  default     = "v1.10.1-eksbuild.11"
+  default     = "v1.11.3-eksbuild.2"
 }
 
 variable "addon_coredns_resolve_create" {
