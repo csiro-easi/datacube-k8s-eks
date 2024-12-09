@@ -167,3 +167,19 @@ module "eks" {
 
   metadata_options = var.metadata_options
 }
+
+# Ensure that we have at least 2 nodes for EKS to support core services that
+# require 2 replicas in a standard deployment (e.g. coredns).
+resource "terraform_data" "eks_min_nodes_check" {
+  triggers_replace = [
+    var.min_nodes,
+    var.min_spot_nodes
+  ]
+
+  lifecycle {
+    precondition {
+      error_message = "A standard deployment requires a minimum of 2 EKS nodes (on demand plus spot) to support core services that require 2 replicas."
+      condition     = (var.min_nodes + var.min_spot_nodes) >= 2
+    }
+  }
+}
