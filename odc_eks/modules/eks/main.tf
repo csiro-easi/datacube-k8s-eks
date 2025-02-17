@@ -37,6 +37,11 @@ resource "aws_eks_cluster" "eks" {
       # When the access_config was added recently it defaulted to false but didn't affect the cluster setting.
       # Changing this from false to true will cause and existing cluster to be recreated so let's ignore this change to avoid that.
       access_config[0].bootstrap_cluster_creator_admin_permissions,
+
+      # Similar to the above, ignore a change to the (new?) default value of
+      # `bootstrap_self_managed_addons=true`, which will cause existing EKS
+      # deployments with it grandfathered in as false to recreate the cluster.
+      bootstrap_self_managed_addons,
     ]
   }
 }
